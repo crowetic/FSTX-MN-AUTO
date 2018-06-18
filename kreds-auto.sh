@@ -9,6 +9,7 @@ echo "WARNING: This script will download some dependencies"
 printf "Press Ctrl+C to cancel or Enter to continue:" 
 read IGNORE
 
+
 apt install software-properties-common -y
 echo "starting downloading KREDS dependencies...."
 add-apt-repository ppa:bitcoin/bitcoin -y
