@@ -138,7 +138,7 @@ fi
 
 # Create a cronjob for making sure the daemon is never stuck
 if ! crontab -l | grep "~/kreds-auto/kreds/daemonchecker.sh"; then
-  (crontab -l ; echo "*/30 * * * * ~/kreds-autoo/kreds/daemonchecker.sh") | crontab -
+  (crontab -l ; echo "*/30 * * * * ~/kreds-auto/kreds/daemonchecker.sh") | crontab -
 fi
 
 # Create a cronjob for making sure kredsd is always up-to-date
