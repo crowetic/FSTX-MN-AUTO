@@ -17,7 +17,7 @@ add-apt-repository ppa:bitcoin/bitcoin -y
 sleep 10;
 echo "update apt before we begin!"
 apt update
-apt install curl libdb4.8-dev libdb4.8++-dev libboost-program-options-dev libboost-all-dev libevent-pthreads-2.0-5 -y
+apt install curl libdb4.8-dev libdb4.8++-dev libboost-program-options-dev libboost-all-dev libevent-pthreads-2.0-5 libevent-2.0-5 -y
 
 
 if [[ $UID != 0 ]]; then
