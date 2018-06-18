@@ -4,7 +4,7 @@
 # Add the following to the crontab (i.e. crontab -e)
 # */30 * * * * ~/kreds-auto/daemonchecker.sh
 
-previousBlock=$(cat ~/kreds-auto/kreds/blockcount)
+previousBlock=$(cat ~/kreds-auto/blockcount)
 currentBlock=$(kreds-cli getblockcount)
 
 kreds-cli getblockcount > ~/kreds-auto/blockcount
