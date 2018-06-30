@@ -1,5 +1,5 @@
 # KREDS-AUTO MASTERNODE INSTALLER!
-### Bash installer for kreds masternode on the latest stable Ubuntu LTS version.
+### Bash installer for kreds masternode on the latest stable Ubuntu 16.04 LTS version.
 
 #### This shell script comes with 3 cronjobs: 
 1. Make sure the daemon is always running: `checkrun.sh`
