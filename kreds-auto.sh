@@ -96,7 +96,7 @@ cd
 #apt-get install software-properties-common
 #add-apt-repository ppa:kreds/ppa -y && apt update && apt install kredsd -y && kredsd
 
-# Download kredsd and put executable files to /usr/local/bin
+# Download kredsd and put executable files to /usr/bin
 
 echo "Download kreds wallet from repository"
 wget --no-check-certificate https://github.com/KredsBlockchain/kreds-core/releases/download/v1.0.0.6/kreds-linux64-v1.0.0.6.tar.xz
