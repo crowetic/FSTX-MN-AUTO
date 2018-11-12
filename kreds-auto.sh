@@ -99,19 +99,19 @@ cd
 # Download kredsd and put executable files to /usr/local/bin
 
 echo "Download kreds wallet from repository"
-wget --no-check-certificate https://github.com/KredsBlockchain/kreds-core/releases/download/v1.0.0.5.1/kreds-linux64-v1.0.0.5.tar.xz
+wget --no-check-certificate https://github.com/KredsBlockchain/kreds-core/releases/download/v1.0.0.6/kreds-linux64-v1.0.0.6.tar.xz
 
 echo "unpack kreds tar.xz files"
-tar -xvf ./kreds-linux64-v1.0.0.5.tar.xz
-chmod +x ./kreds-linux64-v1.0.0.5/*
+tar -xvf ./kreds-linux64-v1.0.0.6.tar.xz
+chmod +x ./kreds-linux64-v1.0.0.6/*
 
 echo "Put all executable files to /usr/bin"
-cp ./kreds-linux64-v1.0.0.5/kredsd /usr/bin/
-cp ./kreds-linux64-v1.0.0.5/kreds-cli /usr/bin/
+cp ./kreds-linux64-v1.0.0.6/kredsd /usr/bin/
+cp ./kreds-linux64-v1.0.0.6/kreds-cli /usr/bin/
 
 echo "remove all temp files!"
-rm -r ./kreds-linux64-v1.0.0.5/
-rm -r ./kreds-linux64-v1.0.0.5.tar.xz
+rm -r ./kreds-linux64-v1.0.0.6/
+rm -r ./kreds-linux64-v1.0.0.6.tar.xz
 
 # Create a directory for KREDS's cronjobs
 echo "Adding all KREDS scripts to crontab"
