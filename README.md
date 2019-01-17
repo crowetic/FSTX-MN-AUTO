@@ -26,3 +26,4 @@ bash ./kreds-auto.sh
 #### Run the qt wallet, go to MASTERNODE tab, click "Start Missing".
 
 
+##### **Thanks to the KREDS team for the original script! Modifications here done by crowetic.
