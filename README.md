@@ -1,10 +1,10 @@
-# KREDS-AUTO MASTERNODE INSTALLER!
-### Bash installer for kreds masternode on the latest stable Ubuntu 16.04 LTS version.
+# FrostByte Coin AUTO MASTERNODE INSTALLER!
+### Bash installer for FSTX masternode on the latest stable Ubuntu 16.04 LTS version.
 
 #### This shell script comes with 3 cronjobs: 
 1. Make sure the daemon is always running: `checkrun.sh`
 2. Make sure the daemon is never stuck: `daemonchecker.sh`
-3. Clear the log file every other day to keep your machine alive : `clearkredslog.sh`
+3. Clear the log file every other day to keep your machine alive : `clearfstxlog.sh`
 
 #### Login to your vps as root, download the install.sh file and then run it:
 ```
@@ -13,10 +13,16 @@ bash ./kreds-auto.sh
 ```
 
 #### On the client-side, add the following line to masternode.conf:
-```
-node-alias xxxVPS-IPxxx:3950 node-key collateral-txid vout 0 or 1 at the end
-```
+### things in (parenthesis) are to be edited, and parenthesis themselves not to be included. 
+## gives you the format/structure for the information and which information to provide only. Do not copy/paste this info without modification or it will not work. 
+## Information with _ means there CANNOT BE A SPACE. SPACES ARE READ BY THE SOFTWARE AND ARE ONLY PLACED WHEN NECESSARY!
 
-#### Run the qt wallet, go to MASTERNODE tab, click "Start Missing" at the bottom (before unlock your addresses under inputs.)
+```
+(node_alias) (hosted-VM-IP:port) (masternode_private_key) (collateral_txid) (vout) 
 
-#### BECAUSE YOUR THOUGHTS HAVE VALUE! https://www.kredsblockchain.com/
+```
+*****note - 'vout' is the '0' or '1' at the end of the txid***
+
+#### Run the qt wallet, go to MASTERNODE tab, click "Start Missing".
+
+
