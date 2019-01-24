@@ -9,35 +9,35 @@ echo "WARNING: This script will download some dependencies and add an apt repo t
 printf "Press Ctrl+C to cancel or Enter to continue:" 
 read IGNORE
 
-echo "We will need to login as root to install dependencies"
+echo "We will need to run as root to install dependencies. This script will run with 'sudo'"
 printf "Press Cntrl+C to cancel or Enter to continue:"
 read IGNORE
 
-apt install software-properties-common -y
+sudo apt install software-properties-common -y
 sleep 10;
 echo "starting downloading wallet dependencies...."
-add-apt-repository ppa:bitcoin/bitcoin -y
+sudo add-apt-repository ppa:bitcoin/bitcoin -y
 sleep 10;
 echo "update apt before we begin!"
-apt update
-apt install g++ pkg-config libssl-dev libevent-dev-y
-apt install curl libdb4.8-dev libdb4.8++-dev libboost-program-options-dev libboost-all-dev libevent-pthreads-2.0-5 libevent-2.0-5 autoconf -y
+sudo apt update
+sudo apt install g++ pkg-config libssl-dev libevent-dev-y
+sudo apt install curl libdb4.8-dev libdb4.8++-dev libboost-program-options-dev libboost-all-dev libevent-pthreads-2.0-5 libevent-2.0-5 autoconf -y
 
 
-if [[ $UID != 0 ]]; then
-    echo "Please run this script with sudo/or as a root user:"
-    echo "sudo $0 $*"
-    exit 1
-fi
+#if [[ $UID != 0 ]]; then
+#    echo "Please run this script with sudo/or as a root user:"
+#    echo "sudo $0 $*"
+#    exit 1
+#fi
 
 while true; do
- if [ -d ~/.Frostbyte ]; then
-   printf "~/.Frostbyte/ already exists! The installer will delete this folder. Continue anyway?(Y/n)"
+ if [ -d $user/.Frostbyte ]; then
+   printf "$user/.Frostbyte/ already exists! The installer will delete this folder. Continue anyway?(Y/n)"
    read REPLY
    if [ ${REPLY} == "Y" ]; then
       pID=$(ps -ef | grep frostbyted | awk '{print $2}')
       kill ${pID}
-      rm -rf ~/.Frostbyte/
+      rm -rf $user/.frostbyte/
       break
    else
       if [ ${REPLY} == "n" ]; then
@@ -69,6 +69,7 @@ printf "Enter Masternode PrivateKey: "
 read _nodePrivateKey
 
 # The RPC node will only accept connections from your localhost
+printf "we will now create your RPC user and password automatically utilizing /dev/urandom"
 _rpcUserName=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 12 ; echo '')
 
 # Choose a random and secure password for the RPC
@@ -76,26 +77,28 @@ _rpcPassword=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32 ; echo '')
 
 # Get your IP address of your vps which will be hosting the masternode
 printf "if you know the IP address for your node, copy it and..."
+printf "paste your IP address here:"
 
 read _nodeIpAddress
+
 #removed IP check due to various different setups for IP and firewall config, every VPS is not the same.
 #_nodeIpAddress=`curl ipecho.net/plain`
 
 echo _nodeIpAddress
 # Make a new directory for Frostbyte wallet
-rm -r ~/.Frostbyte/
-mkdir ~/.Frostbyte/
-touch ~/.Frostbyte/frostbyte.conf
+rm -R $user/.frostbyte/
+mkdir $user/.frostbyte/
+touch $user/.frostbyte/frostbyte.conf
 
-# Change the directory to ~/.kreds
-cd ~/.kreds/
+# Change the directory to $user/.frostbyte
+cd $user/.frostbyte
 
-# Create the initial kreds.conf file
+# Create the initial frostbyte.conf file
 echo "rpcuser=${_rpcUserName}
 rpcpassword=${_rpcPassword}
 rpcallowip=127.0.0.1
 daemon=1
-port=3950
+port=22211
 maxconnections=128
 promode=1
 masternode=1
@@ -104,40 +107,56 @@ masternodeprivkey=${_nodePrivateKey}
 " > frostbyte.conf
 cd
 
-# Install dependencies for kredsd using apt-get
-#apt-get install software-properties-common
-#add-apt-repository ppa:kreds/ppa -y && apt update && apt install kredsd -y && kredsd
-
-# Download kredsd and put executable files to /usr/bin
 
 echo "clone Frostbyte git... and compile daemon from source in new folder called 'BUILD'..."
-#wget --no-check-certificate https://github.com/KredsBlockchain/kreds-core/releases/download/v1.0.0.6/kreds-linux64-v1.0.0.6.tar.xz
+sleep 5
+
 mkdir BUILD
 cd BUILD
+
+printf "cloning frostbyte git..."
+sleep 5
+
 git clone https://github.com/Frostbytecoin/FSTX-Core.git
 cd FSTX-Core
+
+sleep 5
+printf "making necessary executable files..."
+sleep 5
+
 chmod +x share/genbuild.sh
 chmod +x autogen.sh
 chmod +x src/leveldb/build_detect_platform
 
-echo "running autoconf"
+sleep 5
+echo "running ./autogen.sh..."
+sleep 5
+
 ./autogen.sh
 
-echo "running ./configure"
+
+printf "now running ./configure to prepare for wallet build..."
+sleep 5
+
+echo "running ./configure..."
 ./configure
 
+sleep 10
+printf "we will now build the frostbyte daemon and cli..."
+sleep 5
 
-#echo "unpack kreds tar.xz files"
-#tar -xvf ./kreds-linux64-v1.0.0.6.tar.xz
-#chmod +x ./kreds-linux64-v1.0.0.6/*
 
-echo "Put all executable files to /usr/bin"
+
+make
+
+sleep 5
+printf "placing files in necessary user location for easy launch (/usr/bin)..."
+
+
 cp src/frostbyted /usr/bin/
 cp src/frostbyte-cli /usr/bin/
 
-#echo "remove all temp files!"
-#rm -r ./kreds-linux64-v1.0.0.6/
-#rm -r ./kreds-linux64-v1.0.0.6.tar.xz
+
 
 # Create a directory for FSTX-MN-AUTO's cronjobs...
 echo "Adding all FSTX-MN-AUTO's scripts to crontab"
@@ -183,7 +202,7 @@ chmod 0700 ./daemonchecker.sh
 chmod 0700 ./clearkredslog.sh
 
 # Change the SSH port
-sed -i "s/[#]\{0,1\}[ ]\{0,1\}Port [0-9]\{2,\}/Port ${_sshPortNumber}/g" /etc/ssh/sshd_config
+# sed -i "s/[#]\{0,1\}[ ]\{0,1\}Port [0-9]\{2,\}/Port ${_sshPortNumber}/g" /etc/ssh/sshd_config
 
 # Firewall security measures
 apt install ufw -y
