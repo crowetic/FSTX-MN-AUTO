@@ -5,19 +5,23 @@
 # ATTENTION: The firewall part will disable all services like, http, https and dns ports.
 
 #Warning this script will install all dependencies that you are need for this installation.
-echo "WARNING: This script will download some dependencies"
+echo "WARNING: This script will download some dependencies and add an apt repo to your repository list."
 printf "Press Ctrl+C to cancel or Enter to continue:" 
 read IGNORE
 
+echo "We will need to login as root to install dependencies"
+printf "Press Cntrl+C to cancel or Enter to continue:"
+read IGNORE
 
 apt install software-properties-common -y
 sleep 10;
-echo "starting downloading KREDS dependencies...."
+echo "starting downloading wallet dependencies...."
 add-apt-repository ppa:bitcoin/bitcoin -y
 sleep 10;
 echo "update apt before we begin!"
 apt update
-apt install curl libdb4.8-dev libdb4.8++-dev libboost-program-options-dev libboost-all-dev libevent-pthreads-2.0-5 libevent-2.0-5 -y
+apt install g++ pkg-config libssl-dev libevent-dev-y
+apt install curl libdb4.8-dev libdb4.8++-dev libboost-program-options-dev libboost-all-dev libevent-pthreads-2.0-5 libevent-2.0-5 autoconf -y
 
 
 if [[ $UID != 0 ]]; then
@@ -27,13 +31,13 @@ if [[ $UID != 0 ]]; then
 fi
 
 while true; do
- if [ -d ~/.kreds ]; then
-   printf "~/.kreds/ already exists! The installer will delete this folder. Continue anyway?(Y/n)"
+ if [ -d ~/.Frostbyte ]; then
+   printf "~/.Frostbyte/ already exists! The installer will delete this folder. Continue anyway?(Y/n)"
    read REPLY
    if [ ${REPLY} == "Y" ]; then
-      pID=$(ps -ef | grep kredsd | awk '{print $2}')
+      pID=$(ps -ef | grep frostbyted | awk '{print $2}')
       kill ${pID}
-      rm -rf ~/.kreds/
+      rm -rf ~/.Frostbyte/
       break
    else
       if [ ${REPLY} == "n" ]; then
@@ -46,19 +50,22 @@ while true; do
 done
 
 
-# Warning that the script will reboot your server once it's done with your KREDS-NODE
-echo "WARNING: This script will reboot the server once it's done with your KREDS node."
+# Warning that the script will reboot your server once it's done with your Frostbyte Node!
+echo "WARNING: This script will reboot the server once it's done with your Frostbyte Node!"
 printf "Press Ctrl+C to cancel or Enter to continue: "
 read IGNORE
 
 cd
 # Changing the SSH Port to a custom number is a good in a security measure against DDOS/botnet attacks
-printf "Custom SSH Port other than 22(Enter to ignore): "
-read VARIABLE
-_sshPortNumber=${VARIABLE:-22}
+#printf "Custom SSH Port other than 22(Enter to ignore): "
+#read VARIABLE
+#_sshPortNumber=${VARIABLE:-22}
 
 # Get a new privatekey by going to console >> debug and typing masternode genkey
+printf "Obtain a new privatekey for your MasterNode by going to console - debug to get to the FrostByte console, then typing 'masternode genkey' and pushing ENTER."
+printf "copy the key that was generated to paste into this SSH window"
 printf "Enter Masternode PrivateKey: "
+
 read _nodePrivateKey
 
 # The RPC node will only accept connections from your localhost
@@ -68,12 +75,17 @@ _rpcUserName=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 12 ; echo '')
 _rpcPassword=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32 ; echo '')
 
 # Get your IP address of your vps which will be hosting the masternode
-_nodeIpAddress=`curl ipecho.net/plain`
+printf "if you know the IP address for your node, copy it and..."
+
+read _nodeIpAddress
+#removed IP check due to various different setups for IP and firewall config, every VPS is not the same.
+#_nodeIpAddress=`curl ipecho.net/plain`
+
 echo _nodeIpAddress
-# Make a new directory for KREDS daemon
-rm -r ~/.kreds/
-mkdir ~/.kreds/
-touch ~/.kreds/kreds.conf
+# Make a new directory for Frostbyte wallet
+rm -r ~/.Frostbyte/
+mkdir ~/.Frostbyte/
+touch ~/.Frostbyte/frostbyte.conf
 
 # Change the directory to ~/.kreds
 cd ~/.kreds/
@@ -84,12 +96,12 @@ rpcpassword=${_rpcPassword}
 rpcallowip=127.0.0.1
 daemon=1
 port=3950
-maxconnections=64
+maxconnections=128
 promode=1
 masternode=1
-externalip=${_nodeIpAddress}:3950
+externalip=${_nodeIpAddress}:22211
 masternodeprivkey=${_nodePrivateKey}
-" > kreds.conf
+" > frostbyte.conf
 cd
 
 # Install dependencies for kredsd using apt-get
@@ -98,28 +110,42 @@ cd
 
 # Download kredsd and put executable files to /usr/bin
 
-echo "Download kreds wallet from repository"
-wget --no-check-certificate https://github.com/KredsBlockchain/kreds-core/releases/download/v1.0.0.6/kreds-linux64-v1.0.0.6.tar.xz
+echo "clone Frostbyte git... and compile daemon from source in new folder called 'BUILD'..."
+#wget --no-check-certificate https://github.com/KredsBlockchain/kreds-core/releases/download/v1.0.0.6/kreds-linux64-v1.0.0.6.tar.xz
+mkdir BUILD
+cd BUILD
+git clone https://github.com/Frostbytecoin/FSTX-Core.git
+cd FSTX-Core
+chmod +x share/genbuild.sh
+chmod +x autogen.sh
+chmod +x src/leveldb/build_detect_platform
 
-echo "unpack kreds tar.xz files"
-tar -xvf ./kreds-linux64-v1.0.0.6.tar.xz
-chmod +x ./kreds-linux64-v1.0.0.6/*
+echo "running autoconf"
+./autogen.sh
+
+echo "running ./configure"
+./configure
+
+
+#echo "unpack kreds tar.xz files"
+#tar -xvf ./kreds-linux64-v1.0.0.6.tar.xz
+#chmod +x ./kreds-linux64-v1.0.0.6/*
 
 echo "Put all executable files to /usr/bin"
-cp ./kreds-linux64-v1.0.0.6/kredsd /usr/bin/
-cp ./kreds-linux64-v1.0.0.6/kreds-cli /usr/bin/
+cp src/frostbyted /usr/bin/
+cp src/frostbyte-cli /usr/bin/
 
-echo "remove all temp files!"
-rm -r ./kreds-linux64-v1.0.0.6/
-rm -r ./kreds-linux64-v1.0.0.6.tar.xz
+#echo "remove all temp files!"
+#rm -r ./kreds-linux64-v1.0.0.6/
+#rm -r ./kreds-linux64-v1.0.0.6.tar.xz
 
-# Create a directory for KREDS's cronjobs
-echo "Adding all KREDS scripts to crontab"
-rm -r kreds-auto/kreds
-mkdir -p kreds-auto/kreds
+# Create a directory for FSTX-MN-AUTO's cronjobs...
+echo "Adding all FSTX-MN-AUTO's scripts to crontab"
+rm -R FSTX-MN-AUTO/fstx
+mkdir -p FSTX-MN-AUTO/fstx
 
 # Change the directory to ~/kreds-auto/
-cd ~/kreds-auto/kreds
+cd FSTX-MN-AUTO/fstx
 
 # Download the appropriate scripts #edit
 wget https://raw.githubusercontent.com/razerrazer/KREDS-AUTO/master/checkrun.sh
